@@ -116,8 +116,16 @@
 
 <script setup>
 import { ref } from '@vue/reactivity'
-const recents = ref(JSON.parse(localStorage.getItem('recents')))
-const keyword = ref(localStorage.getItem('keyword'))
+const recents = ref(
+  localStorage.getItem('recents')
+    ? JSON.parse(localStorage.getItem('recents'))
+    : []
+)
+const keyword = ref(
+  localStorage.getItem('keyword')
+    ? localStorage.getItem('keyword')
+    : 'One Piece'
+)
 const isRecent = ref(localStorage.getItem('isRecent') == 'true' ? true : false)
 const emit = defineEmits(['keyword'])
 
