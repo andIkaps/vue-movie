@@ -11,7 +11,7 @@
 - OMDB API
 - Google Font
 - FontAwesome
-- Vite Js
+- Vite
 - Visual Studio Code
 
 ### Clone This Repo
