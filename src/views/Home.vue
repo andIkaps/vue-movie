@@ -17,7 +17,11 @@ import getMovies from '../api/getMovies'
 const { movies, load, msg, loadAMovie, totalResults, loadMovies, nextPages } =
   getMovies
 
-const keyword = ref(localStorage.getItem('keyword'))
+const keyword = ref(
+  localStorage.getItem('keyword')
+    ? localStorage.getItem('keyword')
+    : 'One Piece'
+)
 
 const handleKeyword = (kata) => {
   keyword.value = kata
