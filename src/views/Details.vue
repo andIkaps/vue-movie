@@ -210,11 +210,10 @@ const { movie, load, msg, loadAMovie, loadMovie } = getMovie
 loadMovie(props.id)
 
 const { movies, loadMovies } = getMovies
-loadMovies(
-  localStorage.getItem('keyword')
-    ? localStorage.getItem('keyword')
-    : 'One Piece'
-)
+let keyword = localStorage.getItem('keyword')
+  ? localStorage.getItem('keyword')
+  : 'One Piece'
+loadMovies(keyword)
 
 setTimeout(() => {
   films.value = movies.value.filter((movie) => movie.imdbID != props.id)
@@ -222,7 +221,6 @@ setTimeout(() => {
 
 watchEffect(() => {
   loadMovie(props.id)
-  loadMovies(localStorage.getItem('keyword'))
 })
 
 const favMovies = ref(

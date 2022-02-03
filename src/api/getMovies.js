@@ -8,6 +8,9 @@ const loadAMovie = ref(false);
 const msg = ref("Please Wait");
 
 const loadMovies = async keyword => {
+  if (keyword == null) {
+    keyword = "One Piece";
+  }
   msg.value = "Please Wait";
   try {
     let { data } = await axios.get(`https://www.omdbapi.com/?apikey=f9bfc5b4&s=${keyword}`);
