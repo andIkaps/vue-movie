@@ -110,7 +110,7 @@ const toggleFav = (id, e) => {
     // add fav
     e.target.classList.add('text-red-600')
     axios
-      .get(`http://www.omdbapi.com/?apikey=f9bfc5b4&i=${id}`)
+      .get(`https://www.omdbapi.com/?apikey=f9bfc5b4&i=${id}`)
       .then((res) => {
         const { data } = res
         const movie = {

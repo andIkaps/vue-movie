@@ -234,7 +234,7 @@ const toggleFav = (id, e) => {
     }
     // add favorite
     axios
-      .get(`http://www.omdbapi.com/?apikey=f9bfc5b4&i=${id}`)
+      .get(`https://www.omdbapi.com/?apikey=f9bfc5b4&i=${id}`)
       .then((res) => {
         const { data } = res
         const movie = {

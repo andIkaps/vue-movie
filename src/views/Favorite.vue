@@ -8,7 +8,7 @@
 
 <script setup>
 import { ref } from '@vue/reactivity'
-import { onMounted, onUpdated } from '@vue/runtime-core'
+import { onMounted } from '@vue/runtime-core'
 import Movies from '../components/Movies.vue'
 import IsLoading from '../components/IsLoading.vue'
 const favMovies = ref(
