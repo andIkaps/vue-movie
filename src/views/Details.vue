@@ -205,7 +205,11 @@ const { movie, loadMovie } = getMovie
 loadMovie(props.id)
 
 const { movies, loadMovies } = getMovies
-loadMovies(localStorage.getItem('keyword'))
+loadMovies(
+  localStorage.getItem('keyword')
+    ? localStorage.getItem('keyword')
+    : 'One Piece'
+)
 
 setTimeout(() => {
   films.value = movies.value.filter((movie) => movie.imdbID != props.id)
