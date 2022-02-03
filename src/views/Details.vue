@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div class="lg:flex lg:gap-5 lg:justify-between lg:items-center">
+    <IsLoading v-if="load" :msg="msg" />
+    <div
+      class="lg:flex lg:gap-5 lg:justify-between lg:items-center"
+      v-if="loadAMovie"
+    >
       <div
         class="w-full h-64 rounded-md overflow-hidden md:h-80 lg:w-6/12 lg:h-96"
       >
@@ -192,6 +196,7 @@
 import getMovie from '../api/getMovie'
 import Header from '../components/Header.vue'
 import Movies from '../components/Movies.vue'
+import IsLoading from '../components/IsLoading.vue'
 import getMovies from '../api/getMovies'
 import axios from 'axios'
 import { watchEffect, ref } from '@vue/runtime-core'
@@ -201,7 +206,7 @@ const props = defineProps({
 })
 const films = ref([])
 
-const { movie, loadMovie } = getMovie
+const { movie, load, msg, loadAMovie, loadMovie } = getMovie
 loadMovie(props.id)
 
 const { movies, loadMovies } = getMovies
