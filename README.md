@@ -10,7 +10,7 @@
 - Axios
 - OMDB API
 - Google Font
-- FontAwesome
+- Iconly
 - Vite
 - Visual Studio Code
 
