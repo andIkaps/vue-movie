@@ -93,9 +93,9 @@ const favMovies = ref(
 )
 
 const toggleFav = (id, e) => {
-  const cek = JSON.parse(localStorage.getItem('favMovies')).filter(
-    (movie) => movie.imdbID == id
-  )
+  const cek = localStorage.getItem('favMovies')
+    ? JSON.parse(localStorage.getItem('favMovies'))
+    : [].filter((movie) => movie.imdbID == id)
   if (cek.length > 0) {
     // remove fav
     const movie = {
