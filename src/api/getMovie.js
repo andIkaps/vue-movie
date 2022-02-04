@@ -11,7 +11,7 @@ const loadMovie = async id => {
   loadAMovie.value = false;
   msg.value = "Please Wait";
   try {
-    const { data, status } = await axios.get(`https://www.omdbapi.com/?apikey=f9bfc5b4&i=${id}`);
+    const { data, status } = await axios.get(`${import.meta.env.VITE_API_URL}?apikey=${import.meta.env.VITE_API_KEY}&i=${id}`);
     if (status != 200) {
       throw new Error(data.Error);
     }

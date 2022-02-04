@@ -13,7 +13,7 @@ const loadMovies = async keyword => {
   }
   msg.value = "Please Wait";
   try {
-    let { data } = await axios.get(`https://www.omdbapi.com/?apikey=f9bfc5b4&s=${keyword}`);
+    let { data } = await axios.get(`${import.meta.env.VITE_API_URL}?apikey=${import.meta.env.VITE_API_KEY}&s=${keyword}`);
     if (data.Response == "False") {
       throw new Error(data.Error);
     }
