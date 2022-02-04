@@ -7,6 +7,7 @@
 
 - Vue Js
 - Vue router
+- Tailwindcss
 - Axios
 - OMDB API
 - Google Font
