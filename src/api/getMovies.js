@@ -32,7 +32,7 @@ const nextPages = async (page, keyword) => {
   load.value = true;
   msg.value = "Please Wait";
   try {
-    let { data } = await axios.get(`https://www.omdbapi.com/?apikey=f9bfc5b4&s=${keyword}&page=${page}`);
+    let { data } = await axios.get(`${import.meta.env.VITE_API_URL}?apikey=${import.meta.env.VITE_API_KEY}&s=${keyword}&page=${page}`);
     if (data.Response == "False") {
       throw new Error(data.Error);
     }
