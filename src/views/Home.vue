@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <Search @keyword="handleKeyword" />
+    <div>
+        <Search @keyword="handleKeyword" />
 
-    <Movies :movies="movies" v-if="loadAMovie" />
-    <IsLoading :msg="msg" v-if="load" />
-  </div>
+        <Movies :movies="movies" v-if="loadAMovie" />
+        <IsLoading :msg="msg" v-if="load" />
+    </div>
 </template>
 
 <script setup>
@@ -15,21 +15,23 @@ import IsLoading from '../components/IsLoading.vue'
 import getMovies from '../api/getMovies'
 
 const { movies, load, msg, loadAMovie, totalResults, loadMovies, nextPages } =
-  getMovies
+    getMovies
 
 const keyword = ref(
-  localStorage.getItem('keyword')
-    ? localStorage.getItem('keyword')
-    : 'One Piece'
+    localStorage.getItem('keyword')
+        ? localStorage.getItem('keyword')
+        : 'One Piece'
 )
 
+const bottom = ref('')
+
 const handleKeyword = (kata) => {
-  keyword.value = kata
-  loadMovies(keyword.value)
-  setTimeout(() => {
-    totalPage = Math.ceil(totalResults.value / 10)
-  }, 1000)
-  page.value = 1
+    keyword.value = kata
+    loadMovies(keyword.value)
+    setTimeout(() => {
+        totalPage = Math.ceil(totalResults.value / 10)
+    }, 1000)
+    page.value = 1
 }
 
 loadMovies(keyword.value)
@@ -37,19 +39,17 @@ loadMovies(keyword.value)
 const page = ref(1)
 let totalPage = 0
 setTimeout(() => {
-  totalPage = Math.ceil(totalResults.value / 10)
+    totalPage = Math.ceil(totalResults.value / 10)
 }, 1000)
 window.onscroll = () => {
-  let bottomOfWindow =
-    Math.floor(document.documentElement.scrollTop + window.innerHeight) ===
-    document.documentElement.offsetHeight
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement
 
-  if (bottomOfWindow) {
-    page.value = page.value + 1
-    if (page.value <= totalPage) {
-      nextPages(page.value, keyword.value)
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
+        page.value = page.value + 1
+        if (page.value <= totalPage) {
+            nextPages(page.value, keyword.value)
+        }
     }
-  }
 }
 </script>
 
