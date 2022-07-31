@@ -18,25 +18,25 @@ export const useMoviesStore = defineStore("movies", {
   actions: {
     async getAllMovies(keyword) {
       this.isLoading = true;
+      this.loadingMessage = "Please wait";
       if (!keyword) {
         keyword = "One Piece";
       }
 
       try {
         const { data } = await axios.get(`${API_URL}?apikey=${API_KEY}&s=${keyword}`);
-
-        if (data.Response == "FALSE") {
+        if (data.Response == "False") {
           throw new Error(data.Error);
         }
         [this.totalResults, this.movies, this.isLoading, this.page] = [data.totalResults, data.Search, false, 1];
       } catch (err) {
-        console.log(err);
         [this.isLoading, this.loadingMessage] = [true, err.message];
       }
     },
     async nextPage(page) {
       const keyword = localStorage.getItem("keyword") ? localStorage.getItem("keyword") : "One Piece";
       this.isLoading = true;
+      this.loadingMessage = "Please wait";
       try {
         const { data } = await axios.get(`${API_URL}?apikey=${API_KEY}&s=${keyword}&page=${page}`);
 
