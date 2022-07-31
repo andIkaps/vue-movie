@@ -1,16 +1,11 @@
+<script setup>
+import { useMoviesStore } from "../store/movies";
+const store = useMoviesStore();
+</script>
 <template>
   <div class="mt-5 flex justify-center items-center">
-    <h2 class="text-gray-300 animate-pulse">{{ msg }} . . .</h2>
+    <h2 class="text-gray-300 animate-pulse">
+      {{ store.loadingMessage }} . . .
+    </h2>
   </div>
 </template>
-
-<script setup>
-import { ref } from '@vue/reactivity'
-
-const props = defineProps({
-  msg: String,
-})
-</script>
-
-<style>
-</style>

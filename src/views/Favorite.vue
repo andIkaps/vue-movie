@@ -1,30 +1,24 @@
-<template>
-  <div>
-    <h3 class="text-gray-500 text-xl tracking-widest">Your Favorite Movies</h3>
-    <Movies :movies="favMovies" />
-    <IsLoading :msg="msg" v-if="load" />
-  </div>
-</template>
-
 <script setup>
-import { ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
-import Movies from '../components/Movies.vue'
-import IsLoading from '../components/IsLoading.vue'
-const favMovies = ref(
-  localStorage.getItem('favMovies')
-    ? JSON.parse(localStorage.getItem('favMovies'))
-    : []
-)
-const load = ref(false)
-const msg = ref('')
+import { onMounted } from "@vue/runtime-core";
+import Movies from "../components/Movies.vue";
+import IsLoading from "../components/IsLoading.vue";
+import { useFavoritStore } from "../store/favorit";
+import { useMoviesStore } from "../store/movies";
+const store = useFavoritStore();
+const moviesStore = useMoviesStore();
+
 onMounted(() => {
-  if (favMovies.value.length < 1) {
-    load.value = true
-    msg.value = 'Empty'
+  if (store.favMovies.length < 1) {
+    moviesStore.isLoading = true;
+    moviesStore.loadingMessage = "Empty";
   }
-})
+});
 </script>
 
-<style>
-</style>
+<template>
+  <main>
+    <h3 class="text-gray-500 text-xl tracking-widest">Your Favorite Movies</h3>
+    <Movies :movies="store.favMovies" />
+    <IsLoading v-if="moviesStore.isLoading" />
+  </main>
+</template>

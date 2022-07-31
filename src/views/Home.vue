@@ -1,57 +1,53 @@
-<template>
-    <div>
-        <Search @keyword="handleKeyword" />
-
-        <Movies :movies="movies" v-if="loadAMovie" />
-        <IsLoading :msg="msg" v-if="load" />
-    </div>
-</template>
-
 <script setup>
-import { ref } from '@vue/reactivity'
-import Movies from '../components/Movies.vue'
-import Search from '../components/Search.vue'
-import IsLoading from '../components/IsLoading.vue'
-import getMovies from '../api/getMovies'
-
-const { movies, load, msg, loadAMovie, totalResults, loadMovies, nextPages } =
-    getMovies
+import { onMounted, ref } from "@vue/runtime-core";
+import Movies from "../components/Movies.vue";
+import Search from "../components/Search.vue";
+import IsLoading from "../components/IsLoading.vue";
+import { useMoviesStore } from "../store/movies";
+const store = useMoviesStore();
 
 const keyword = ref(
-    localStorage.getItem('keyword')
-        ? localStorage.getItem('keyword')
-        : 'One Piece'
-)
+  localStorage.getItem("keyword")
+    ? localStorage.getItem("keyword")
+    : "One Piece"
+);
+const scrollComponent = ref(null);
+const favMovies = ref(
+  localStorage.getItem("favMovies")
+    ? JSON.parse(localStorage.getItem("favMovies"))
+    : []
+);
 
-const bottom = ref('')
-
-const handleKeyword = (kata) => {
-    keyword.value = kata
-    loadMovies(keyword.value)
-    setTimeout(() => {
-        totalPage = Math.ceil(totalResults.value / 10)
-    }, 1000)
-    page.value = 1
-}
-
-loadMovies(keyword.value)
-
-const page = ref(1)
-let totalPage = 0
+let totalPage = 0;
 setTimeout(() => {
-    totalPage = Math.ceil(totalResults.value / 10)
-}, 1000)
-window.onscroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+  totalPage = Math.ceil(store.totalResults / 10);
+}, 1000);
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-        page.value = page.value + 1
-        if (page.value <= totalPage) {
-            nextPages(page.value, keyword.value)
-        }
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+  store.getAllMovies(keyword.value);
+});
+
+const handleScroll = (e) => {
+  const element = scrollComponent.value;
+  if (element) {
+    if (element.getBoundingClientRect().bottom < window.innerHeight) {
+      store.page++;
+      if (store.page <= totalPage) {
+        store.nextPage(store.page);
+      }
     }
-}
+  }
+};
 </script>
 
-<style>
-</style>
+<template>
+  <main>
+    <Search />
+
+    <article ref="scrollComponent">
+      <Movies :movies="store.movies" />
+    </article>
+    <IsLoading v-if="store.isLoading" />
+  </main>
+</template>

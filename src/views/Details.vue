@@ -1,17 +1,65 @@
+<script setup>
+import Header from "../components/Header.vue";
+import Movies from "../components/Movies.vue";
+import IsLoading from "../components/IsLoading.vue";
+import { watchEffect, ref, onMounted } from "@vue/runtime-core";
+import CalendarIcon from "../components/icons/CalendarIcon.vue";
+import TimeIcon from "../components/icons/TimeIcon.vue";
+import HeartIcon from "../components/icons/HeartIcon.vue";
+import LocationIcon from "../components/icons/LocationIcon.vue";
+import StarIcon from "../components/icons/StarIcon.vue";
+import { useMoviesStore } from "../store/movies";
+import { useFavoritStore } from "../store/favorit";
+const favStore = useFavoritStore();
+const moviesStore = useMoviesStore();
+
+const props = defineProps({
+  id: String,
+});
+const films = ref([]);
+
+watchEffect(() => {
+  films.value = moviesStore.movies.filter((movie) => movie.imdbID != props.id);
+  moviesStore.getMovieByID(props.id);
+});
+
+onMounted(() => {
+  moviesStore.getMovieByID(props.id);
+});
+
+const toggleFav = (id, e) => {
+  const cek = favStore.favMovies.filter((movie) => movie.imdbID == id);
+  if (cek.length > 0) {
+    favStore.removeFromFav(id);
+    e.target.classList.remove("text-red-600");
+  } else {
+    favStore.addToFavorit(id);
+    e.target.classList.add("text-red-600");
+  }
+};
+
+const handleTextFav = (imdbID) => {
+  const cek = favStore.favMovies.filter((movie) => movie.imdbID == imdbID);
+  return cek.length ? "Remove from Favorite" : "Add to Favorite";
+};
+
+const getClass = (imdbID) => {
+  const cek = favStore.favMovies.filter((movie) => movie.imdbID == imdbID);
+  return cek.length ? "text-red-600" : "text-gray-300";
+};
+</script>
+
 <template>
-  <div>
-    <IsLoading v-if="load" :msg="msg" />
-    <div
-      class="lg:flex lg:gap-5 lg:justify-between lg:items-center"
-      v-if="loadAMovie"
-    >
+  <main>
+    <IsLoading v-if="moviesStore.isLoading" />
+    <article class="lg:flex lg:gap-5 lg:justify-between lg:items-center">
       <div
         class="w-full h-64 rounded-md overflow-hidden md:h-80 lg:w-6/12 lg:h-96"
       >
         <img
-          :src="movie.Poster"
+          :src="moviesStore.movie.Poster"
           class="w-full h-full object-cover"
-          :alt="movie.Title"
+          :alt="moviesStore.movie.Title"
         />
       </div>
       <div class="my-5 lg:w-5/12 lg:mt-0">
@@ -25,7 +73,7 @@
             md:text-sm
           "
         >
-          {{ movie.Genre }}
+          {{ moviesStore.movie.Genre }}
         </p>
 
         <h3
@@ -37,7 +85,7 @@
             md:text-2xl
           "
         >
-          {{ movie.Title }}
+          {{ moviesStore.movie.Title }}
         </h3>
         <div
           class="
@@ -50,93 +98,28 @@
           "
         >
           <div class="flex items-center text-gray-400 font-light text-sm">
-            <svg
-              class="w-5 h-5 mr-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="Iconly/Broken/Calendar">
-                <g id="Calendar">
-                  <path
-                    id="Calendar_2"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M16.4522 2.73508V3.76997C19.4609 4.06186 21 5.72477 21 8.71446V16.9848C21 20.3106 19.1043 22 15.3739 22H8.62609C4.89565 22 3 20.3106 3 16.9848V8.71446C3 6.72428 3.67826 5.30019 5.06957 4.46874C5.28888 4.31904 5.57263 4.30859 5.80202 4.44176C6.0314 4.57494 6.16687 4.82876 6.15169 5.09698C6.13652 5.3652 5.97333 5.60155 5.73043 5.70708C4.8087 6.25548 4.37391 7.21077 4.37391 8.71446V8.97981H17.0609C17.4403 8.97981 17.7478 9.29266 17.7478 9.67859C17.7478 10.0645 17.4403 10.3774 17.0609 10.3774H4.37391V16.9848C4.37391 19.5233 5.6087 20.5759 8.62609 20.5936H15.3739C18.3478 20.5936 19.6174 19.5145 19.6174 16.9759V8.70561C19.6174 6.4943 18.6522 5.42403 16.4522 5.16752V5.83975C16.4014 6.19806 16.093 6.45964 15.7374 6.44599C15.3818 6.43234 15.0936 6.14786 15.0696 5.78668V2.67316C15.0763 2.48618 15.1565 2.30977 15.2921 2.18341C15.4278 2.05706 15.6076 1.99132 15.7913 2.00092C16.17 2.02461 16.4623 2.34923 16.4522 2.73508ZM8.70877 6.29279C8.57806 6.42409 8.40109 6.49667 8.21739 6.4943C7.8414 6.48465 7.54295 6.16923 7.54783 5.78668V2.73508C7.58736 2.37709 7.88498 2.10645 8.23913 2.10645C8.59328 2.10645 8.8909 2.37709 8.93043 2.73508V3.69921H12.8609C13.2403 3.69921 13.5478 4.01206 13.5478 4.39798C13.5478 4.7839 13.2403 5.09675 12.8609 5.09675H8.91304V5.79553C8.91306 5.9824 8.83949 6.16149 8.70877 6.29279ZM16.1913 12.6152C15.7111 12.6152 15.3217 13.0112 15.3217 13.4997C15.3217 13.9882 15.7111 14.3843 16.1913 14.3843C16.6716 14.3843 17.0609 13.9882 17.0609 13.4997C17.0609 13.2636 16.9681 13.0373 16.8031 12.8711C16.6382 12.705 16.4147 12.6128 16.1826 12.6152H16.1913ZM11.1478 13.4997C11.1478 13.0112 11.5371 12.6152 12.0174 12.6152C12.4976 12.6152 12.887 13.0112 12.887 13.4997C12.887 13.9882 12.4976 14.3843 12.0174 14.3843C11.5371 14.3843 11.1478 13.9882 11.1478 13.4997ZM7.85217 12.6152C7.37193 12.6152 6.98261 13.0112 6.98261 13.4997C6.98261 13.9882 7.37193 14.3843 7.85217 14.3843C8.33242 14.3843 8.72174 13.9882 8.72174 13.4997C8.72175 13.2636 8.62894 13.0373 8.46398 12.8711C8.29902 12.705 8.0756 12.6128 7.84348 12.6152H7.85217ZM15.3217 17.082C15.3217 16.5935 15.7111 16.1975 16.1913 16.1975H16.1826C16.4147 16.1952 16.6382 16.2873 16.8031 16.4534C16.9681 16.6196 17.0609 16.8459 17.0609 17.082C17.0609 17.5706 16.6716 17.9666 16.1913 17.9666C15.7111 17.9666 15.3217 17.5706 15.3217 17.082ZM12.0174 16.1975C11.5371 16.1975 11.1478 16.5935 11.1478 17.082C11.1478 17.5706 11.5371 17.9666 12.0174 17.9666C12.4976 17.9666 12.887 17.5706 12.887 17.082C12.887 16.5935 12.4976 16.1975 12.0174 16.1975ZM6.98261 17.082C6.98261 16.5935 7.37193 16.1975 7.85217 16.1975H7.84348C8.0756 16.1952 8.29902 16.2873 8.46398 16.4534C8.62894 16.6196 8.72175 16.8459 8.72174 17.082C8.72174 17.5706 8.33242 17.9666 7.85217 17.9666C7.37193 17.9666 6.98261 17.5706 6.98261 17.082Z"
-                    fill="currentColor"
-                  />
-                </g>
-              </g>
-            </svg>
+            <CalendarIcon />
 
-            {{ movie.Released }}
+            {{ moviesStore.movie.Released }}
           </div>
 
           <div class="flex items-center text-gray-400 font-light text-sm">
-            <svg
-              class="w-5 h-5 mr-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="Iconly/Broken/Time Circle">
-                <g id="Time Circle">
-                  <path
-                    id="Time Circle_2"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M1.99976 11.9998C1.99976 6.48476 6.48576 1.99976 11.9998 1.99976C17.5138 1.99976 21.9998 6.48476 21.9998 11.9998C21.9998 17.5138 17.5138 21.9998 11.9998 21.9998C8.87276 21.9998 5.98276 20.5768 4.07276 18.0978C3.82776 17.7788 3.88776 17.3218 4.20576 17.0778C4.52376 16.8318 4.97876 16.8928 5.22476 17.2098C6.85776 19.3298 9.32676 20.5458 11.9998 20.5458C16.7118 20.5458 20.5458 16.7128 20.5458 11.9998C20.5458 7.28776 16.7118 3.45376 11.9998 3.45376C7.28776 3.45376 3.45476 7.28776 3.45476 11.9998C3.45476 12.4378 3.48676 12.8728 3.55176 13.2988C3.61176 13.6948 3.33976 14.0658 2.94276 14.1268C2.54376 14.1928 2.17476 13.9158 2.11476 13.5188C2.03876 13.0208 1.99976 12.5098 1.99976 11.9998ZM10.9339 7.83716C10.9339 7.43516 11.2599 7.10916 11.6609 7.10916C12.0619 7.10916 12.3879 7.43516 12.3879 7.83716V12.2832L15.8119 14.3252C16.1569 14.5312 16.2699 14.9772 16.0639 15.3222C15.9289 15.5492 15.6869 15.6762 15.4399 15.6762C15.3129 15.6762 15.1839 15.6432 15.0679 15.5742L11.2879 13.3202C11.0689 13.1882 10.9339 12.9512 10.9339 12.6952V7.83716Z"
-                    fill="currentColor"
-                  />
-                </g>
-              </g>
-            </svg>
+            <TimeIcon />
 
-            {{ movie.Runtime }}
+            {{ moviesStore.movie.Runtime }}
           </div>
 
           <div class="flex items-center text-gray-400 font-light text-sm">
-            <svg
-              class="w-5 h-5 mr-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="Iconly/Broken/Location">
-                <g id="Location">
-                  <path
-                    id="Location_2"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M11.9999 2H12.0333C16.7197 2.01842 20.5183 5.84197 20.4999 10.5223V10.6153C20.4366 13.96 18.4258 16.7356 16.7504 18.4746C16.2736 18.9718 15.7661 19.4489 15.2427 19.8944C14.9292 20.1619 14.4586 20.1251 14.1908 19.812C13.923 19.498 13.9607 19.028 14.2742 18.7605C14.7589 18.3475 15.2304 17.9037 15.6739 17.4416C17.1649 15.8946 18.9527 13.4487 19.0071 10.5881C19.022 6.65842 15.8916 3.50574 12.0272 3.48996H11.9999C8.14862 3.48996 5.00768 6.61194 4.99276 10.4609C5.05861 12.3622 5.70138 14.1696 6.85256 15.6859C8.19604 17.4749 10.2341 19.3691 12.1712 20.6302C12.5171 20.8547 12.6146 21.316 12.3889 21.6615C12.2467 21.8807 12.007 22 11.7628 22C11.6232 22 11.4827 21.9614 11.3563 21.879C9.28224 20.5293 7.0993 18.5 5.66011 16.5839C4.32453 14.8238 3.57727 12.7235 3.5 10.5127C3.51844 5.78585 7.32848 2 11.9999 2ZM10.2552 10.6141C10.2552 11.5727 11.0367 12.354 11.9973 12.354C12.9579 12.354 13.7394 11.5727 13.7394 10.6141C13.7394 9.65474 12.9579 8.87337 11.9973 8.87337C11.5855 8.87337 11.2509 8.54012 11.2509 8.12883C11.2509 7.71665 11.5855 7.38341 11.9973 7.38341C13.7807 7.38341 15.2322 8.83215 15.2322 10.6141C15.2322 12.3952 13.7807 13.844 11.9973 13.844C10.2139 13.844 8.76241 12.3952 8.76241 10.6141C8.76241 10.202 9.09696 9.86872 9.50879 9.86872C9.92061 9.86872 10.2552 10.202 10.2552 10.6141Z"
-                    fill="currentColor"
-                  />
-                </g>
-              </g>
-            </svg>
+            <LocationIcon />
 
-            {{ movie.Country }}
+            {{ moviesStore.movie.Country }}
           </div>
         </div>
         <div class="flex items-center text-gray-400 font-light text-sm my-8">
-          <svg
-            class="w-5 h-5 mr-3"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g id="Iconly/Broken/Star">
-              <g id="Star">
-                <path
-                  id="Star_2"
-                  d="M17.498 21.9194C17.375 21.9224 17.253 21.8914 17.146 21.8294L12.008 19.1234L7.48399 21.5594C6.74599 21.9594 5.82199 21.6854 5.42199 20.9464C5.41699 20.9374 5.41199 20.9284 5.40699 20.9184C5.24999 20.6094 5.19499 20.2604 5.24899 19.9184L6.12899 14.7244L2.45099 11.0004C1.84999 10.3804 1.84999 9.39438 2.45099 8.77338C2.68499 8.52738 2.99499 8.36838 3.33099 8.32238L8.37399 7.55638L10.617 2.88338C10.966 2.12338 11.865 1.78938 12.626 2.13838C12.956 2.28938 13.22 2.55438 13.371 2.88338L15.624 7.57238L20.684 8.34738C21.093 8.40838 21.46 8.63438 21.7 8.97138C22.148 9.61538 22.08 10.4854 21.538 11.0524L17.877 14.7324L18.387 17.5314C18.458 17.9514 18.181 18.3524 17.762 18.4314C17.35 18.5054 16.956 18.2314 16.882 17.8184L16.363 15.0194C16.276 14.5064 16.439 13.9824 16.803 13.6114L20.473 9.90538L15.413 9.12038C14.9 9.03738 14.465 8.69738 14.26 8.22038L12.008 3.55138L9.72799 8.29438C9.52299 8.77238 9.08799 9.11138 8.57499 9.19438L3.53199 9.96038L7.17499 13.6604C7.53799 14.0254 7.70099 14.5424 7.61499 15.0494L6.73499 20.2434L11.258 17.8174C11.706 17.5654 12.253 17.5654 12.701 17.8174L17.832 20.5234C18.145 20.6944 18.304 21.0554 18.219 21.4024C18.141 21.7494 17.835 21.9964 17.48 22.0024L17.498 21.9194Z"
-                  fill="currentColor"
-                />
-              </g>
-            </g>
-          </svg>
+          <StarIcon />
 
-          {{ movie.imdbRating }} - {{ movie.imdbVotes }} Votes
+          {{ moviesStore.movie.imdbRating }} -
+          {{ moviesStore.movie.imdbVotes }} Votes
         </div>
 
         <p
@@ -148,40 +131,22 @@
             md:tracking-widest
           "
         >
-          {{ movie.Plot }}
+          {{ moviesStore.movie.Plot }}
         </p>
 
         <button
-          @click="toggleFav(movie.imdbID, $event)"
+          @click="toggleFav(moviesStore.movie.imdbID, $event)"
           class="flex items-center mt-8 cursor-pointer"
-          :class="getClass(movie.imdbID)"
+          :class="getClass(moviesStore.movie.imdbID)"
         >
-          <svg
-            class="w-5 h-5 mr-3"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g id="Iconly/Broken/Heart">
-              <g id="Heart">
-                <path
-                  id="Heart_2"
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M17.5206 2.8027C19.1348 3.30469 20.4771 4.45775 21.2354 5.99382C22.122 7.85558 22.2427 10.0008 21.5707 11.9536C20.9521 13.7513 19.938 15.3809 18.6059 16.7178C17.7325 17.6155 16.7914 18.442 15.7912 19.1898L15.7383 19.2347C15.406 19.4584 14.9591 19.3706 14.7324 19.037C14.6171 18.8759 14.5708 18.674 14.6041 18.4776C14.6373 18.2811 14.7473 18.1067 14.9088 17.9942C15.8474 17.2871 16.7323 16.5088 17.5559 15.6661C18.7421 14.4987 19.648 13.0683 20.203 11.4861C20.7368 9.90956 20.6288 8.18086 19.903 6.68598C19.3189 5.51 18.2899 4.62715 17.053 4.24096C15.4753 3.73838 13.7565 4.04305 12.4382 5.05896C12.1762 5.25674 11.818 5.25674 11.5559 5.05896C10.2382 4.04164 8.5187 3.73684 6.94115 4.24096C5.69596 4.61862 4.65663 5.4988 4.06466 6.67699C3.35526 8.17077 3.25377 9.88955 3.78231 11.4592C4.33967 13.0376 5.24529 14.4645 6.42938 15.6301C8.179 17.3392 10.1083 18.8465 12.1824 20.1246C12.4461 20.3111 12.5621 20.6493 12.4697 20.9625C12.3773 21.2757 12.0974 21.4927 11.7765 21.5C11.6318 21.5008 11.4903 21.457 11.3706 21.3741C9.21007 20.0429 7.20077 18.4723 5.37938 16.6908C4.03993 15.3583 3.02208 13.7276 2.40583 11.9266C1.75701 9.97655 1.8902 7.84437 2.77642 5.99382C3.5347 4.45775 4.87695 3.30469 6.49115 2.8027C8.34706 2.21871 10.3607 2.48784 12.0059 3.53981C13.6511 2.48784 15.6647 2.21871 17.5206 2.8027ZM16.7971 9.68833C16.7602 8.85762 16.2172 8.13914 15.4383 7.89052C15.1487 7.70632 15.02 7.34441 15.1267 7.01402C15.2334 6.68363 15.5479 6.47024 15.8883 6.49721C17.2039 6.92033 18.1404 8.10845 18.2618 9.50855C18.2867 9.70431 18.2335 9.90206 18.1141 10.0575C17.9946 10.213 17.819 10.3131 17.6265 10.3355C17.2224 10.3887 16.8519 10.0997 16.7971 9.68833Z"
-                  fill="#DC2626"
-                />
-              </g>
-            </g>
-          </svg>
+          <HeartIcon />
 
           <span class="text-sm tracking-wide">
-            {{ handleTextFav(movie.imdbID) }}
+            {{ handleTextFav(moviesStore.movie.imdbID) }}
           </span>
         </button>
       </div>
-    </div>
+    </article>
     <hr class="mt-24 mb-16 opacity-10" />
     <div>
       <h3 class="text-gray-300 text-sm md:text-lg">
@@ -189,103 +154,8 @@
       </h3>
       <Movies :movies="films" />
     </div>
-  </div>
+  </main>
 </template>
-
-<script setup>
-import getMovie from '../api/getMovie'
-import Header from '../components/Header.vue'
-import Movies from '../components/Movies.vue'
-import IsLoading from '../components/IsLoading.vue'
-import getMovies from '../api/getMovies'
-import axios from 'axios'
-import { watchEffect, ref } from '@vue/runtime-core'
-
-const props = defineProps({
-  id: String,
-})
-const films = ref([])
-
-const { movie, load, msg, loadAMovie, loadMovie } = getMovie
-loadMovie(props.id)
-
-const { movies, loadMovies } = getMovies
-let keyword = localStorage.getItem('keyword')
-  ? localStorage.getItem('keyword')
-  : 'One Piece'
-loadMovies(keyword)
-
-setTimeout(() => {
-  films.value = movies.value.filter((movie) => movie.imdbID != props.id)
-}, 1000)
-
-watchEffect(() => {
-  loadMovie(props.id)
-})
-
-const favMovies = ref(
-  localStorage.getItem('favMovies')
-    ? JSON.parse(localStorage.getItem('favMovies'))
-    : []
-)
-
-const toggleFav = (id, e) => {
-  const cek = favMovies.value.filter((movie) => movie.imdbID == id)
-  if (cek.length > 0) {
-    // remove favorite
-    favMovies.value = favMovies.value.filter((movie) => movie.imdbID != id)
-    localStorage.setItem('favMovies', JSON.stringify(favMovies.value))
-  } else {
-    if (e.target.tagName.toLowerCase() == 'span') {
-      e.target.textContent = 'Wait . . .'
-    }
-    // add favorite
-    axios
-      .get(
-        `${import.meta.env.VITE_API_URL}?apikey=${
-          import.meta.env.VITE_API_KEY
-        }&i=${id}`
-      )
-      .then((res) => {
-        const { data } = res
-        const movie = {
-          imdbID: data.imdbID,
-          Title: data.Title,
-          Poster: data.Poster,
-          Year: data.Year,
-        }
-        favMovies.value.push(movie)
-        localStorage.setItem('favMovies', JSON.stringify(favMovies.value))
-      })
-      .catch((err) => console.log(err))
-  }
-}
-
-const handleTextFav = (imdbID) => {
-  if (favMovies.value.length > 0) {
-    const cek = favMovies.value.filter((movie) => movie.imdbID == imdbID)
-    if (cek.length > 0) {
-      return 'Remove from Favorite'
-    } else {
-      return 'Add to Favorite'
-    }
-  } else {
-    return 'Add to Favorite'
-  }
-}
-const getClass = (imdbID) => {
-  if (favMovies.value.length > 0) {
-    const cek = favMovies.value.filter((movie) => movie.imdbID == imdbID)
-
-    return {
-      'text-red-600': cek.length > 0,
-      'text-gray-300': cek.length == 0,
-    }
-  } else {
-    return 'text-gray-300'
-  }
-}
-</script>
 
 <style>
 </style>
